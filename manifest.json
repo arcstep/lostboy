@@ -1,11 +1,22 @@
 {
   "manifest_version": 3,
-  "name": "Web Content Recorder",
+  "name": "A Lost Boy On Neverland",
   "version": "1.0",
-  "description": "Automatically records HTML content of the pages you visit.",
+  "description": "Automatically records HTML content to Neverland Service.",
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "images/icon16.png",
+      "32": "images/icon32.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
+    }
+  },
   "permissions": [
+    "tabs",
     "activeTab",
-    "storage"
+    "storage",
+    "scripting"
   ],
   "background": {
     "service_worker": "background.js"
@@ -19,5 +30,11 @@
         "content.js"
       ]
     }
-  ]
+  ],
+  "icons": {
+    "16": "images/icon16.png",
+    "32": "images/icon32.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  }
 }
