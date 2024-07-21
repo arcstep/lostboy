@@ -79,6 +79,10 @@ function extractContentBasedOnConfig() {
 }
 
 function convertToMarkdown(text) {
+    // 将提取的内容保存到chrome.storage.local中
+    chrome.storage.local.set({ extractedContent: text }, () => {
+        console.log('内容已保存');
+    });
     return text.split('\n').map(line => `* ${line}`).join('\n');
 }
 
