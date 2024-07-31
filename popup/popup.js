@@ -11,6 +11,24 @@ const get_content = () => {
     });
 }
 
+document.getElementById('focusButton').addEventListener('click', () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        chrome.scripting.executeScript({
+            target: { tabId: tabs[0].id },
+            files: ['popup/focus.js']
+        });
+    });
+});
+
+document.getElementById('removeFocusButton').addEventListener('click', () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        chrome.scripting.executeScript({
+            target: { tabId: tabs[0].id },
+            func: removeInjectedScript
+        });
+    });
+});
+
 document.getElementById('getContentButton').addEventListener('click', () => {
     get_content().then(content => {
         const contentDisplay = document.getElementById('contentDisplay');
@@ -26,16 +44,90 @@ document.getElementById('getContentButton').addEventListener('click', () => {
                 preElement.textContent += item + '\n'; // 添加换行符以分隔数组中的项
             });
         } else {
-            // 如果不是数组，直接将content作为文本内容
             preElement.textContent = content;
         }
 
-        // 将preElement添加到contentDisplay中
         contentDisplay.appendChild(preElement);
     }).catch(error => {
-        // 使用<pre>标签显示错误信息，保持格式
-        const preElement = document.createElement('pre');
-        preElement.textContent = error;
-        document.getElementById('contentDisplay').appendChild(preElement);
+        console.error(error);
     });
 });
+
+// 定义一个函数来移除注入的脚本
+function removeInjectedScript() {
+    // 移除所有添加的事件监听器
+    document.removeEventListener('mouseover', handleMouseOver);
+    document.removeEventListener('mouseout', handleMouseOut);
+    document.removeEventListener('click', handleClick);
+
+    // 清除所有红色边框
+    const elements = document.querySelectorAll('*');
+    elements.forEach(element => {
+        element.style.outline = '';
+    });
+}
+
+// 定义事件处理函数
+function handleMouseOver(event) {
+    if (highlightedElement) {
+        highlightedElement.style.outline = '';
+    }
+    highlightedElement = event.target;
+    highlightedElement.style.outline = '2px solid red';
+}
+
+function handleMouseOut(event) {
+    if (highlightedElement) {
+        highlightedElement.style.outline = '';
+        highlightedElement = null;
+    }
+}
+
+function handleClick(event) {
+    if (highlightedElement) {
+        const xpath = getXPath(highlightedElement);
+        const cssSelector = getCSSSelector(highlightedElement);
+        console.log('XPath:', xpath);
+        console.log('CSS Selector:', cssSelector);
+        event.stopPropagation();
+        event.preventDefault();
+    }
+}
+
+// 定义获取 XPath 和 CSS 选择器路径的函数
+function getXPath(element) {
+    if (element.id !== '') {
+        return 'id("' + element.id + '")';
+    }
+    if (element === document.body) {
+        return element.tagName.toLowerCase();
+    }
+
+    let ix = 0;
+    const siblings = element.parentNode.childNodes;
+    for (let i = 0; i < siblings.length; i++) {
+        const sibling = siblings[i];
+        if (sibling === element) {
+            return getXPath(element.parentNode) + '/' + element.tagName.toLowerCase() + '[' + (ix + 1) + ']';
+        }
+        if (sibling.nodeType === 1 && sibling.tagName === element.tagName) {
+            ix++;
+        }
+    }
+}
+
+function getCSSSelector(element) {
+    if (element.id) {
+        return `#${element.id}`;
+    }
+    const path = [];
+    while (element.nodeType === Node.ELEMENT_NODE) {
+        let selector = element.nodeName.toLowerCase();
+        if (element.className) {
+            selector += '.' + element.className.split(' ').join('.');
+        }
+        path.unshift(selector);
+        element = element.parentNode;
+    }
+    return path.join(' > ');
+}

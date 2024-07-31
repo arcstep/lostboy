@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>插件弹出窗口</title>
+    <title>迷失在梦幻岛的男孩</title>
     <meta charset="UTF-8">
     <style>
         body {
@@ -10,19 +10,23 @@
         }
 
         h1 {
-            color: #333;
-            font-size: 14px;
+            text-align: center;
         }
 
-        h1,
-        button {
-            text-align: right;
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
         }
 
-        h1,
-        button {
-            display: block;
-            margin-left: auto;
+        .button-container button {
+            margin: 0 5px;
+        }
+
+        #selectorInput {
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
         }
 
         #contentDisplay {
@@ -32,8 +36,13 @@
 </head>
 
 <body>
-    <h1>欢迎使用Neverland插件</h1>
-    <button id="getContentButton">查看提取结果</button>
+    <h1>把知识收集到梦幻岛吧</h1>
+    <div class="button-container">
+        <button id="focusButton">定位内容</button>
+        <button id="getContentButton">查看提取结果</button>
+    </div>
+    <label for="selectorInput">CSS选择器或XPath路径:</label>
+    <input type="text" id="selectorInput" placeholder="在此输入或通过选择填入">
     <div id="contentDisplay"></div>
     <script src="popup.js"></script>
 </body>
